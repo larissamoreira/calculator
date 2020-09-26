@@ -18,19 +18,32 @@ function App() {
   const [current, setCurrent] = useState(0)
 
   addDigit = (n) => {
-    if (n === '.' && displayValue.includes('.')) return
+    console.log(`n: ${n}`)
 
-    const clearDisplay = displayValue === '0' || clearDisplay
+    const clear = displayValue === '0' || clearDisplay
 
-    const currentValue = clearDisplay ? '' : displayValue
-    setDisplayValue(currentValue + n)
+    if (n === '.' && !clearDisplay && displayValue.includes('.')) {
+      return
+    }
+
+    const currentValue = clear ? '' : displayValue
+
+    console.log(`current value: ${currentValue}`)
+    console.log(`current value + n: ${currentValue + n}`)
+
+    const newLocal = currentValue + n;
+    setDisplayValue(newLocal)
+
+    console.log(`displayValue: ${displayValue}`)
+
     setClearDisplay(false)
 
     if (n !== '.') {
-      const newValue = parseFloat(displayValue)
+      const newValue = parseFloat(newLocal)
       const v = [...values]
       v[current] = newValue
       setValues(v)
+      console.log(`values: ${values}`)
     }
   }
 
@@ -38,37 +51,30 @@ function App() {
     setDisplayValue('0')
     setClearDisplay(false)
     setOperation(null)
-    setValues([0,0])
+    setValues([0, 0])
     setCurrent(0)
   }
 
   setOp = op => {
-    console.warn(values)
-    setOperation(op)
-
-    if (operation == '=') {
-      setValues(values[1] = displayValue)
-      switch (operation) {
-        case operation == '/':
-          console.warn(values)
-          setDisplayValue(values[0] / values[1])
-          break
-        case operation == '*':
-          setDisplayValue(values[0] * values[1])
-          break
-        case operation == '-':
-          setDisplayValue(values[0] - values[1])
-          break
-        case operation == '+':
-          setDisplayValue(values[0] + values[1])
-          break
-      }
-
+    if (current == 0) {
+      setOperation(op)
+      setCurrent(1)
+      setClearDisplay(true)
     } else {
-      setValues(values[0] = displayValue)
-      setDisplayValue(0)
+      const equals = op === '='
+      const v = [...values]
+      try {
+        v[0] = eval(`${v[0]} ${operation} ${v[1]}`)
+      } catch (e) {
+        v[0] = values[0]
+      }
+      v[1] = 0
+      setDisplayValue(`${v[0]}`)
+      setOperation(equals ? null : op)
+      setCurrent(equals ? 0 : 1)
+      setClearDisplay(true)
+      setValues(v)
     }
-
   }
 
   return (
@@ -77,19 +83,19 @@ function App() {
       <View style={styles.buttons}>
         <Button label="AC" triple onClick={clearMemory} />
         <Button label="/" operation onClick={() => setOp('/')} />
-        <Button label="7" onClick={() => addDigit(7)} />
-        <Button label="8" onClick={() => addDigit(8)} />
-        <Button label="9" onClick={() => addDigit(9)} />
+        <Button label="7" onClick={() => addDigit('7')} />
+        <Button label="8" onClick={() => addDigit('8')} />
+        <Button label="9" onClick={() => addDigit('9')} />
         <Button label="*" operation onClick={() => setOp('*')} />
-        <Button label="4" onClick={() => addDigit(4)} />
-        <Button label="5" onClick={() => addDigit(5)} />
-        <Button label="6" onClick={() => addDigit(6)} />
+        <Button label="4" onClick={() => addDigit('4')} />
+        <Button label="5" onClick={() => addDigit('5')} />
+        <Button label="6" onClick={() => addDigit('6')} />
         <Button label="-" operation onClick={() => setOp('-')} />
-        <Button label="1" onClick={() => addDigit(1)} />
-        <Button label="2" onClick={() => addDigit(2)} />
-        <Button label="3" onClick={() => addDigit(3)} />
+        <Button label="1" onClick={() => addDigit('1')} />
+        <Button label="2" onClick={() => addDigit('2')} />
+        <Button label="3" onClick={() => addDigit('3')} />
         <Button label="+" operation onClick={() => setOp('+')} />
-        <Button label="0" double onClick={() => addDigit(0)} />
+        <Button label="0" double onClick={() => addDigit('0')} />
         <Button label="." onClick={() => addDigit('.')} />
         <Button label="=" operation onClick={() => setOp('=')} />
       </View>
